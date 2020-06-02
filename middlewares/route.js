@@ -14,7 +14,22 @@ const validateBody = (schema, options = {}) => {
     next();
   };
 };
+/**
+ * validate req.query against a joi schema. Mutates req.query with the result of the
+ * validation to pick up default values
+ */
+const validateQuery = (schema, options = {}) => {
+  return (req, res, next) => {
+    const schemaResult = schema.validate(req.query, options);
+    if (schemaResult.error) {
+      next(new ValidationError(schemaResult.error.details[0].message));
+      return;
+    }
+    req.query = schemaResult.value;
+    next();
+  };
+};
 
 module.exports = {
-  validateBody,
+  validateBody, validateQuery
 }
